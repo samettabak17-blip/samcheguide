@@ -7,7 +7,7 @@ dotenv.config();
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: "15mb" })); // Büyük dosya transferleri için limit artırıldı
+app.use(express.json());
 
 // -----------------------------
 //  GOOGLE GEMINI API CONFIGURATION
@@ -18,14 +18,14 @@ const GEMINI_URL =
   GEMINI_API_KEY;
 
 // -----------------------------
-//  SYSTEM INSTRUCTION & KNOWLEDGE BASE (GÜNCELLENMİŞ)
+//  SYSTEM INSTRUCTION & KNOWLEDGE BASE (GÜNCELLENMİŞ PROMPT)
 // -----------------------------
 const SYSTEM_PROMPT = `
 You are the Senior Executive AI Advisor at SamChe Company LLC, a premier corporate services and business setup consultancy in Dubai, UAE. You represent SamChe Company LLC exclusively. You never mention, recommend, or refer to any other agency, consultancy, or third-party company.
 
 CORE PERSONALITY & COMMUNICATION RULES:
 - Act as an authoritative, highly knowledgeable, direct, and elite UAE business setup expert representing SamChe Company LLC.
-- CRITICAL TOKEN & EFFICIENCY RULE: DO NOT start responses with generic greetings, pleasantries, or filler phrases (such as "Hello", "Welcome", "Merhaba", "How can I help you today?", "Nasılsınız"). Go straight to the professional advice, document interpretation, or required qualification questions. Never waste tokens on conversational fluff.
+- CRITICAL TOKEN & EFFICIENCY RULE: DO NOT start responses with generic greetings, pleasantries, or filler phrases (such as "Hello", "Welcome", "Merhaba", "How can I help you today?", "Nasılsınız"). Go straight to the professional advice or required qualification questions. Never waste tokens on conversational fluff.
 - REFER TO YOURSELF as "I" (or "we" as SamChe Company) and address the user professionally.
 - Interpret short or single-word inputs as a continuation of the ongoing context.
 
@@ -92,136 +92,6 @@ CONTACT INFORMATION POLICY:
 `;
 
 // -----------------------------
-//  FRONTEND ARAYÜZ ENDPOINT (HTML)
-// -----------------------------
-app.get("/", (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html lang="tr">
-    <head>
-        <meta charset="UTF-8">
-        <title>SamChe Company - BAE Şirket Kurulum Danışmanı</title>
-        <style>
-            body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #333; }
-            .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-            h2 { color: #1a365d; text-align: center; }
-            #chat-box { height: 400px; border: 1px solid #ddd; border-radius: 6px; overflow-y: scroll; padding: 15px; background: #fafafa; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
-            .message { padding: 10px 14px; border-radius: 6px; max-width: 80%; line-height: 1.4; word-break: break-word; }
-            .user { background: #007bff; color: white; align-self: flex-end; }
-            .ai { background: #e2e8f0; color: #1a365d; align-self: flex-start; }
-            .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
-            textarea { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; resize: none; height: 50px; font-family: Arial; }
-            button { background: #1a365d; color: white; border: none; padding: 0 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-            button:hover { background: #2a4365; }
-            .file-upload-section { border-top: 1px solid #eee; padding-top: 15px; display: flex; gap: 10px; align-items: center; }
-            #loading { display: none; text-align: center; color: #666; font-style: italic; margin-bottom: 10px; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h2>SamChe Company - Dubai & BAE Kurulum Uzmanı</h2>
-            <div id="chat-box"></div>
-            <div id="loading">Yapay zeka analiz yapıyor, lütfen bekleyin...</div>
-            <div class="input-group">
-                <textarea id="user-input" placeholder="Dubai'de şirket kurulumu hakkında soru sorun veya sektör belirtin..."></textarea>
-                <button onclick="sendMessage()">Gönder</button>
-            </div>
-            <div class="file-upload-section">
-                <label><b>Doküman / Görsel Yükle ve İncelet:</b></label>
-                <input type="file" id="file-input" accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg">
-                <button onclick="sendDocument()">Dosyayı Gönder ve İncelet</button>
-            </div>
-        </div>
-
-        <script>
-            const chatBox = document.getElementById('chat-box');
-            const userInput = document.getElementById('user-input');
-            const fileInput = document.getElementById('file-input');
-            const loading = document.getElementById('loading');
-
-            function appendMessage(text, sender) {
-                const div = document.createElement('div');
-                div.className = \`message \${sender}\`;
-                div.innerHTML = text.replace(/\\n/g, '<br>');
-                chatBox.appendChild(div);
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
-
-            async function sendMessage() {
-                const text = userInput.value.trim();
-                if (!text) return;
-
-                appendMessage(text, 'user');
-                userInput.value = '';
-                loading.style.display = 'block';
-
-                try {
-                    const response = await fetch('/chat', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ text })
-                    });
-                    const data = await response.json();
-                    loading.style.display = 'none';
-
-                    if (data.candidates && data.candidates[0].content.parts[0].text) {
-                        appendMessage(data.candidates[0].content.parts[0].text, 'ai');
-                    } else {
-                        appendMessage("Bir hata oluştu, lütfen tekrar deneyin.", 'ai');
-                    }
-                } catch (err) {
-                    loading.style.display = 'none';
-                    appendMessage("Bağlantı hatası oluştu.", 'ai');
-                }
-            }
-
-            async function sendDocument() {
-                const file = fileInput.files[0];
-                if (!file) {
-                    alert("Lütfen önce bir dosya seçin.");
-                    return;
-                }
-
-                const promptText = userInput.value.trim() || "Lütfen bu dokümanı inceleyip SamChe Company uzmanlık perspektifiyle özetleyin ve değerlendirin.";
-                
-                appendMessage(\`[Dosya Yüklendi: \${file.name}] - Mesaj: \${promptText}\`, 'user');
-                userInput.value = '';
-                fileInput.value = '';
-                loading.style.display = 'block';
-
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = async function () {
-                    const base64Data = reader.result.split(',')[1];
-                    const mimeType = file.type;
-
-                    try {
-                        const response = await fetch('/analyze-doc', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ fileBase64: base64Data, mimeType: mimeType, prompt: promptText })
-                        });
-                        const data = await response.json();
-                        loading.style.display = 'none';
-
-                        if (data.candidates && data.candidates[0].content.parts[0].text) {
-                            appendMessage(data.candidates[0].content.parts[0].text, 'ai');
-                        } else {
-                            appendMessage("Doküman analiz edilemedi.", 'ai');
-                        }
-                    } catch (err) {
-                        loading.style.display = 'none';
-                        appendMessage("Doküman gönderilirken hata oluştu.", 'ai');
-                    }
-                };
-            }
-        </script>
-    </body>
-    </html>
-  `);
-});
-
-// -----------------------------
 //  STRATEGY PLAN ENDPOINT (/plan)
 // -----------------------------
 app.post("/plan", async (req, res) => {
@@ -270,43 +140,6 @@ app.post("/chat", async (req, res) => {
   } catch (err) {
     console.error("Chat endpoint error:", err);
     return res.status(500).json({ error: "Could not generate chat response." });
-  }
-});
-
-// -----------------------------
-//  DOCUMENT ANALYSIS ENDPOINT (/analyze-doc)
-// -----------------------------
-app.post("/analyze-doc", async (req, res) => {
-  try {
-    const { fileBase64, mimeType, prompt } = req.body;
-    if (!fileBase64 || !mimeType) {
-      return res.status(400).json({ error: "File data or mimeType is missing." });
-    }
-
-    const userPrompt = prompt || "Analyze this document and evaluate it from a UAE business setup and legal compliance perspective.";
-
-    const payload = {
-      contents: [
-        {
-          parts: [
-            { inlineData: { mimeType: mimeType, data: fileBase64 } },
-            { text: userPrompt }
-          ]
-        }
-      ],
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }
-    };
-
-    const response = await fetch(GEMINI_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    const data = await response.json();
-    return res.json(data);
-  } catch (err) {
-    console.error("Document analysis error:", err);
-    return res.status(500).json({ error: "Could not analyze the document." });
   }
 });
 
