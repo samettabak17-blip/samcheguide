@@ -20,8 +20,6 @@ const GEMINI_URL =
 // -------------------------------
 //  LİNK DÖNÜŞTÜRÜCÜ (MARKDOWN -> HTML)
 // -------------------------------
-// Bu fonksiyon yapay zekanın verdiği [Metin](URL) formatını, 
-// arayüzünde tıklanabilir mavi link olması için zorla HTML'e çevirir.
 const parseLinksToHTML = (text) => {
   if (!text) return text;
   return text.replace(
@@ -31,48 +29,44 @@ const parseLinksToHTML = (text) => {
 };
 
 // -------------------------------
-//  KISA MESAJ → KURUMSAL CEVAP HARİTASI 
+//  KISA MESAJ → KURUMSAL CEVAP HARİTASI (DÜZELTİLDİ)
 // -------------------------------
+// Artık dil parametresine bakmadan doğrudan kelimenin kendi dilinde cevap veriyor.
 const corporateShortReplyMap = {
-  // 1 - 2 - 3 (Özel davranış)
-  "1": { tr: "Size nasıl yardımcı olabilirim?", en: "How may I assist you?", ar: "كيف يمكنني مساعدتك؟" },
-  "2": { tr: "Size nasıl yardımcı olabilirim?", en: "How may I assist you?", ar: "كيف يمكنني مساعدتك؟" },
-  "3": { tr: "Size nasıl yardımcı olabilirim?", en: "How may I assist you?", ar: "كيف يمكنني مساعدتك؟" },
-
   // Selamlama
-  merhaba: { tr: "Merhaba, size nasıl yardımcı olabilirim?", en: "Hello, how may I assist you today?", ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟" },
-  selam: { tr: "Merhaba, size nasıl yardımcı olabilirim?", en: "Hello, how may I assist you today?", ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟" },
-  hi: { tr: "Merhaba, size nasıl yardımcı olabilirim?", en: "Hello, how may I assist you today?", ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟" },
-  hello: { tr: "Hello, how may I assist you today?", en: "Hello, how may I assist you today?", ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟" },
+  "merhaba": "Merhaba, size nasıl yardımcı olabilirim?",
+  "selam": "Merhaba, size nasıl yardımcı olabilirim?",
+  "hi": "Hello, how may I assist you today?",
+  "hello": "Hello, how may I assist you today?",
 
   // Teşekkür & Kapanış
-  teşekkürler: { tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.", en: "My pleasure. I’m here whenever you need support.", ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة." },
-  tesekkurler: { tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.", en: "My pleasure. I’m here whenever you need support.", ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة." },
-  "thank you": { tr: "My pleasure. I’m here whenever you need support.", en: "My pleasure. I’m here whenever you need support.", ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة." },
-  thanks: { tr: "My pleasure. I’m here whenever you need support.", en: "My pleasure. I’m here whenever you need support.", ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة." },
-  "ben teşekkür ederim": { tr: "Rica ederim. Her zaman yardımcı olmaktan memnuniyet duyarım.", en: "You're welcome. Always happy to assist.", ar: "على الرحب والسعة. يسعدني دائمًا مساعدتك." },
-  "çok teşekkürler": { tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.", en: "My pleasure. I’m here whenever you need support.", ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة." },
-  "teşekkür ederim": { tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.", en: "My pleasure. I’m here whenever you need support.", ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة." },
+  "teşekkürler": "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.",
+  "tesekkurler": "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.",
+  "thank you": "My pleasure. I’m here whenever you need support.",
+  "thanks": "My pleasure. I’m here whenever you need support.",
+  "ben teşekkür ederim": "Rica ederim. Her zaman yardımcı olmaktan memnuniyet duyarım.",
+  "çok teşekkürler": "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.",
+  "teşekkür ederim": "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.",
 
   // Sağol / Eyvallah
-  sağol: { tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.", en: "You're welcome. I’m here if you need anything.", ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء." },
-  sagol: { tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.", en: "You're welcome. I’m here if you need anything.", ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء." },
-  eyvallah: { tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.", en: "You're welcome. I’m here if you need anything.", ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء." },
+  "sağol": "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.",
+  "sagol": "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.",
+  "eyvallah": "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.",
 
   // Anlama / Onay
-  anladım: { tr: "Harika. Nasıl devam etmek istersiniz?", en: "Great. How would you like to proceed?", ar: "جميل. كيف تود المتابعة؟" },
-  anladim: { tr: "Harika. Nasıl devam etmek istersiniz?", en: "Great. How would you like to proceed?", ar: "جميل. كيف تود المتابعة؟" },
-  "got it": { tr: "Understood. How would you like to proceed?", en: "Understood. How would you like to proceed?", ar: "فهمت. كيف تود المتابعة؟" },
-  understood: { tr: "Understood. How would you like to proceed?", en: "Understood. How would you like to proceed?", ar: "فهمت. كيف تود المتابعة؟" },
-  noted: { tr: "Not aldım. Nasıl devam etmek istersiniz?", en: "Noted. How would you like to proceed?", ar: "تم تدوينه. كيف تود المتابعة؟" },
+  "anladım": "Harika. Nasıl devam etmek istersiniz?",
+  "anladim": "Harika. Nasıl devam etmek istersiniz?",
+  "got it": "Understood. How would you like to proceed?",
+  "understood": "Understood. How would you like to proceed?",
+  "noted": "Noted. How would you like to proceed?",
 
   // Kapanış
-  "görüşmek üzere": { tr: "Görüşmek üzere. Dilediğiniz zaman buradayım.", en: "See you soon. I’m here whenever you need assistance.", ar: "أراك قريبًا. أنا هنا كلما احتجت إلى المساعدة." },
-  "gorusmek uzere": { tr: "Görüşmek üzere. Dilediğiniz zaman buradayım.", en: "See you soon. I’m here whenever you need assistance.", ar: "أراك قريبًا. أنا هنا كلما احتجت إلى المساعدة." },
+  "görüşmek üzere": "Görüşmek üzere. Dilediğiniz zaman buradayım.",
+  "gorusmek uzere": "Görüşmek üzere. Dilediğiniz zaman buradayım.",
 
   // Emoji
-  "👍": { tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.", en: "You're welcome. I’m here if you need anything.", ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء." },
-  "🙏": { tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.", en: "You're welcome. I’m here if you need anything.", ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء." }
+  "👍": "Rica ederim. Dilediğiniz zaman yardımcı olabilirim. / You're welcome.",
+  "🙏": "Rica ederim. Dilediğiniz zaman yardımcı olabilirim. / You're welcome."
 };
 
 // -----------------------------
@@ -254,7 +248,7 @@ app.post("/plan", async (req, res) => {
 // -----------------------------
 app.post("/chat", async (req, res) => {
   try {
-    const { text, lang = "tr" } = req.body;
+    const { text } = req.body; // lang parametresi silindi, doğrudan gelen metne bakılacak
 
     if (!text) {
       return res.status(400).json({ error: "Message text is missing." });
@@ -263,8 +257,7 @@ app.post("/chat", async (req, res) => {
     // Token tasarrufu: Gelen mesaj haritada varsa API'ye gitmeden doğrudan yanıt dön
     const cleanText = text.trim().toLowerCase();
     if (corporateShortReplyMap[cleanText]) {
-      const selectedLang = ["tr", "en", "ar"].includes(lang) ? lang : "tr";
-      const replyText = corporateShortReplyMap[cleanText][selectedLang];
+      const replyText = corporateShortReplyMap[cleanText]; // Doğrudan kelimeye karşılık gelen metni al
       
       return res.json({
         candidates: [
