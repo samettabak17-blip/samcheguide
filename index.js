@@ -17,32 +17,153 @@ const GEMINI_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=" +
   GEMINI_API_KEY;
 
-const STREAM_GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:streamGenerateContent?alt=sse&key=" +
-  GEMINI_API_KEY;
-
 // -------------------------------
 //  KISA MESAJ → KURUMSAL CEVAP HARİTASI 
 // -------------------------------
 const corporateShortReplyMap = {
-  "1": { tr: "Size nasıl yardımcı olabilirim?", en: "How may I assist you?", ar: "كيف يمكنني مساعدتك؟" },
-  "2": { tr: "Size nasıl yardımcı olabilirim?", en: "How may I assist you?", ar: "كيف يمكنني مساعدتك؟" },
-  "3": { tr: "Size nasıl yardımcı olabilirim?", en: "How may I assist you?", ar: "كيف يمكنني مساعدتك؟" },
-  merhaba: { tr: "Merhaba, size nasıl yardımcı olabilirim?", en: "Hello, how may I assist you today?", ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟" },
-  selam: { tr: "Merhaba, size nasıl yardımcı olabilirim?", en: "Hello, how may I assist you today?", ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟" },
-  hi: { tr: "Merhaba, size nasıl yardımcı olabilirim?", en: "Hello, how may I assist you today?", ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟" },
-  hello: { tr: "Hello, how may I assist you today?", en: "Hello, how may I assist you today?", ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟" },
-  teşekkürler: { tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.", en: "My pleasure. I’m here whenever you need support.", ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة." },
-  tesekkurler: { tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.", en: "My pleasure. I’m here whenever you need support.", ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة." },
-  "thank you": { tr: "My pleasure. I’m here whenever you need support.", en: "My pleasure. I’m here whenever you need support.", ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة." },
-  thanks: { tr: "My pleasure. I’m here whenever you need support.", en: "My pleasure. I’m here whenever you need support.", ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة." },
-  "teşekkür ederim": { tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.", en: "My pleasure. I’m here whenever you need support.", ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة." },
-  sağol: { tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.", en: "You're welcome. I’m here if you need anything.", ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء." },
-  sagol: { tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.", en: "You're welcome. I’m here if you need anything.", ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء." },
-  anladım: { tr: "Harika. Nasıl devam etmek istersiniz?", en: "Great. How would you like to proceed?", ar: "جميل. كيف تود المتابعة؟" },
-  anladim: { tr: "Harika. Nasıl devam etmek istersiniz?", en: "Great. How would you like to proceed?", ar: "جميل. كيف تود المتابعة؟" },
-  "görüşmek üzere": { tr: "Görüşmek üzere. Dilediğiniz zaman buradayım.", en: "See you soon. I’m here whenever you need assistance.", ar: "أراك قريبًا. أنا هنا كلما احتجت إلى المساعدة." },
-  "gorusmek uzere": { tr: "Görüşmek üzere. Dilediğiniz zaman buradayım.", en: "See you soon. I’m here whenever you need assistance.", ar: "أراك قريبًا. أنا هنا كلما احتجت إلى المساعدة." }
+  // 1 - 2 - 3 (Özel davranış)
+  "1": {
+    tr: "Size nasıl yardımcı olabilirim?",
+    en: "How may I assist you?",
+    ar: "كيف يمكنني مساعدتك؟"
+  },
+  "2": {
+    tr: "Size nasıl yardımcı olabilirim?",
+    en: "How may I assist you?",
+    ar: "كيف يمكنني مساعدتك؟"
+  },
+  "3": {
+    tr: "Size nasıl yardımcı olabilirim?",
+    en: "How may I assist you?",
+    ar: "كيف يمكنني مساعدتك؟"
+  },
+
+  // Selamlama
+  merhaba: {
+    tr: "Merhaba, size nasıl yardımcı olabilirim?",
+    en: "Hello, how may I assist you today?",
+    ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟"
+  },
+  selam: {
+    tr: "Merhaba, size nasıl yardımcı olabilirim?",
+    en: "Hello, how may I assist you today?",
+    ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟"
+  },
+  hi: {
+    tr: "Merhaba, size nasıl yardımcı olabilirim?",
+    en: "Hello, how may I assist you today?",
+    ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟"
+  },
+  hello: {
+    tr: "Hello, how may I assist you today?",
+    en: "Hello, how may I assist you today?",
+    ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟"
+  },
+
+  // Teşekkür & Kapanış
+  teşekkürler: {
+    tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.",
+    en: "My pleasure. I’m here whenever you need support.",
+    ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة."
+  },
+  tesekkurler: {
+    tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.",
+    en: "My pleasure. I’m here whenever you need support.",
+    ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة."
+  },
+  "thank you": {
+    tr: "My pleasure. I’m here whenever you need support.",
+    en: "My pleasure. I’m here whenever you need support.",
+    ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة."
+  },
+  thanks: {
+    tr: "My pleasure. I’m here whenever you need support.",
+    en: "My pleasure. I’m here whenever you need support.",
+    ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة."
+  },
+  "ben teşekkür ederim": {
+    tr: "Rica ederim. Her zaman yardımcı olmaktan memnuniyet duyarım.",
+    en: "You're welcome. Always happy to assist.",
+    ar: "على الرحب والسعة. يسعدني دائمًا مساعدتك."
+  },
+  "çok teşekkürler": {
+    tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.",
+    en: "My pleasure. I’m here whenever you need support.",
+    ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة."
+  },
+  "teşekkür ederim": {
+    tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.",
+    en: "My pleasure. I’m here whenever you need support.",
+    ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة."
+  },
+
+  // Sağol / Eyvallah
+  sağol: {
+    tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.",
+    en: "You're welcome. I’m here if you need anything.",
+    ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء."
+  },
+  sagol: {
+    tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.",
+    en: "You're welcome. I’m here if you need anything.",
+    ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء."
+  },
+  eyvallah: {
+    tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.",
+    en: "You're welcome. I’m here if you need anything.",
+    ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء."
+  },
+
+  // Anlama / Onay
+  anladım: {
+    tr: "Harika. Nasıl devam etmek istersiniz?",
+    en: "Great. How would you like to proceed?",
+    ar: "جميل. كيف تود المتابعة؟"
+  },
+  anladim: {
+    tr: "Harika. Nasıl devam etmek istersiniz?",
+    en: "Great. How would you like to proceed?",
+    ar: "جميل. كيف تود المتابعة؟"
+  },
+  "got it": {
+    tr: "Understood. How would you like to proceed?",
+    en: "Understood. How would you like to proceed?",
+    ar: "فهمت. كيف تود المتابعة؟"
+  },
+  understood: {
+    tr: "Understood. How would you like to proceed?",
+    en: "Understood. How would you like to proceed?",
+    ar: "فهمت. كيف تود المتابعة؟"
+  },
+  noted: {
+    tr: "Not aldım. Nasıl devam etmek istersiniz?",
+    en: "Noted. How would you like to proceed?",
+    ar: "تم تدوينه. كيف تود المتابعة؟"
+  },
+
+  // Kapanış
+  "görüşmek üzere": {
+    tr: "Görüşmek üzere. Dilediğiniz zaman buradayım.",
+    en: "See you soon. I’m here whenever you need assistance.",
+    ar: "أراك قريبًا. أنا هنا كلما احتجت إلى المساعدة."
+  },
+  "gorusmek uzere": {
+    tr: "Görüşmek üzere. Dilediğiniz zaman buradayım.",
+    en: "See you soon. I’m here whenever you need assistance.",
+    ar: "أراك قريبًا. أنا هنا كلما احتجت إلى المساعدة."
+  },
+
+  // Emoji
+  "👍": {
+    tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.",
+    en: "You're welcome. I’m here if you need anything.",
+    ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء."
+  },
+  "🙏": {
+    tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.",
+    en: "You're welcome. I’m here if you need anything.",
+    ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء."
+  }
 };
 
 // -----------------------------
@@ -67,7 +188,12 @@ LINK FORMATTING RULE (CLICKABLE HYPERLINKS):
 - When providing any web link or YouTube link, you MUST ALWAYS format it in standard Markdown link syntax so that it is clickable.
 - NEVER write raw URLs as plain text. 
 - Format template: [Görüntülenecek Metin](URL)
-- EXAMPLE FOR YOUTUBE: [Samed Tabak YouTube Kanalı](https://youtube.com/@sametttbk)
+- EXAMPLE FOR YOUTUBE: If linking to Samed Tabak's YouTube channel, always write it like this: [YouTube Kanalını Ziyaret Edin](https://youtube.com/@sametttbk) or [Samed Tabak YouTube](https://youtube.com/@sametttbk).
+- Kullanıcıya maddeli bilgi verirken her madde TEK SATIR olmalıdır.
+- Her madde başında "•" kullanılmalıdır.
+- Maddeler arasında boş satır bırakılmamalıdır.
+- Paragraf içinde madde yazılmaz; maddeler her zaman alt alta ayrı satırlarda olmalıdır.
+- Bu format tüm dillerde (TR, EN, AR) aynen korunacaktır.
 
 DETAILED PROTOCOL & RULES:
 1. Her sorduğu soruda kullanıcının vize bilgisi iste; amacı kullanıcıyı öncelikli bilgilendirmektir.
@@ -122,7 +248,7 @@ DETAILED PROTOCOL & RULES:
 16. Kullanıcı daha önce sektör bilgisini verdiyse, bir daha ASLA sektör sorma. Kullanıcı diğer vize türlerini sorarsa (freelance vize alma vb. sorular sorduğunda) freelance vize öner; Umm Al Quwain bölgesinde ve maliyetinin 16,800 AED olduğunu belirt. Meslek uygunluk durumunu sorgulamak için WhatsApp hattına yönlendir kurumsal bir dille. WP uzman canlı danışman hattı: +971527288586.
 17. Kullanıcı şirket maliyetleri dışında şirket diğer faaliyetleri hakkında sorular sorarsa önce genel bilgilendirme yap, sorularla niyetini ölç, niyeti ciddiyse WP hattına yönlendir.
 18. Kullanıcı şirket faaliyetleri ve hizmetleri dışında sorular sorarsa kurumsal bir dille yanıt verilemeyeceğini belirt, sadece SamChe Company ve hizmetleri hakkında bilgi verildiğini söyle.
-19. Dubai hakkında genel bilgi isterse (kiralar, yaşam şartları vs.) Samed Tabak şirket founder'ın YouTube sayfasında detaylı bilgileri anlattığını kurumsal bir dille açıkla. Sayfa linki daima şu Markdown formatında verilecektir: [Samed Tabak YouTube Kanalı](https://youtube.com/@sametttbk).
+19. Dubai hakkında genel bilgi isterse (kiralar, yaşam şartları vs.) Samed Tabak şirket founder'ın YouTube sayfasında detaylı bilgileri anlattığını kurumsal bir dille açıkla. Sayfa linki: https://youtube.com/@sametttbk.
 
 UAE BUSINESS SETUP KNOWLEDGE BASE & JURISDICTION RULES:
 1. MAINLAND (DET / Dubai Economy & Tourism):
@@ -163,118 +289,9 @@ CONTACT INFORMATION POLICY & FORM REDIRECTION:
   Email: business@samchecompany.com
   Website: https://samchecompany.com 
 - FORM REDIRECTION LINKS (Use only when high intent to start or official proposal is requested):
-  * If speaking Turkish: [SamChe Şirket Kurulum Formu](https://samchecompany.ae/sirket-kurulumu-dubai-sirket-kurulumu-formu)
-  * If speaking other languages: [SamChe Business Consultation](https://samchecompany.com)
+  * If speaking Turkish: https://samchecompany.ae/sirket-kurulumu-dubai-sirket-kurulumu-formu
+  * If speaking other languages: https://samchecompany.com
 `;
-
-// -----------------------------
-//  FRONTEND ARAYÜZ (HTML / JS - Markdown Parser & Stream Destekli)
-// -----------------------------
-app.get("/", (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html lang="tr">
-    <head>
-        <meta charset="UTF-8">
-        <title>SamChe Company - BAE Şirket Kurulum Danışmanı</title>
-        <!-- Markdown linklerini ve metinleri HTML'e çevirmek için marked.js kütüphanesi ekledik -->
-        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-        <style>
-            body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #333; }
-            .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-            h2 { color: #1a365d; text-align: center; }
-            #chat-box { height: 450px; border: 1px solid #ddd; border-radius: 6px; overflow-y: scroll; padding: 15px; background: #fafafa; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
-            .message { padding: 10px 14px; border-radius: 6px; max-width: 85%; line-height: 1.5; word-break: break-word; }
-            .user { background: #007bff; color: white; align-self: flex-end; }
-            .ai { background: #e2e8f0; color: #1a365d; align-self: flex-start; }
-            .ai a { color: #0056b3; font-weight: bold; text-decoration: underline; }
-            .input-group { display: flex; gap: 10px; }
-            textarea { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; resize: none; height: 50px; font-family: Arial; }
-            button { background: #1a365d; color: white; border: none; padding: 0 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-            button:hover { background: #2a4365; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h2>SamChe Company - Dubai & BAE Kurulum Uzmanı</h2>
-            <div id="chat-box"></div>
-            <div class="input-group">
-                <textarea id="user-input" placeholder="Mesajınızı yazın..."></textarea>
-                <button onclick="sendMessage()">Gönder</button>
-            </div>
-        </div>
-
-        <script>
-            const chatBox = document.getElementById('chat-box');
-            const userInput = document.getElementById('user-input');
-
-            function appendMessage(text, sender) {
-                const div = document.createElement('div');
-                div.className = 'message ' + sender;
-                if(sender === 'ai') {
-                    div.innerHTML = marked.parse(text);
-                } else {
-                    div.innerText = text;
-                }
-                chatBox.appendChild(div);
-                chatBox.scrollTop = chatBox.scrollHeight;
-                return div;
-            }
-
-            async function sendMessage() {
-                const text = userInput.value.trim();
-                if (!text) return;
-
-                appendMessage(text, 'user');
-                userInput.value = '';
-
-                // Asistan için boş bir balon açıyoruz (Daktilo efekti için)
-                const aiDiv = document.createElement('div');
-                aiDiv.className = 'message ai';
-                chatBox.appendChild(aiDiv);
-
-                try {
-                    const response = await fetch('/chat', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ text })
-                    });
-
-                    const reader = response.body.getReader();
-                    const decoder = new TextDecoder();
-                    let accumulatedText = "";
-
-                    while (true) {
-                        const { value, done } = await reader.read();
-                        if (done) break;
-
-                        const chunk = decoder.decode(value, { stream: true });
-                        const lines = chunk.split('\\n');
-                        
-                        for (const line of lines) {
-                            if (line.startsWith('data: ')) {
-                                try {
-                                    const json = JSON.parse(line.replace('data: ', ''));
-                                    const content = json.candidates?.[0]?.content?.parts?.[0]?.text;
-                                    if (content) {
-                                        accumulatedText += content;
-                                        // Gelen Markdown metnini anlık olarak tıklanabilir HTML'e çeviriyoruz
-                                        aiDiv.innerHTML = marked.parse(accumulatedText);
-                                        chatBox.scrollTop = chatBox.scrollHeight;
-                                    }
-                                } catch (e) {}
-                            }
-                        }
-                    }
-                } catch (err) {
-                    aiDiv.innerText = "Bağlantı hatası oluştu.";
-                }
-            }
-        </script>
-    </body>
-    </html>
-  `);
-});
 
 // -----------------------------
 //  STRATEGY PLAN ENDPOINT (/plan)
@@ -282,11 +299,24 @@ app.get("/", (req, res) => {
 app.post("/plan", async (req, res) => {
   try {
     const { sector } = req.body;
-    if (!sector) return res.status(400).json({ error: "Sector value is missing." });
+
+    if (!sector) {
+      return res.status(400).json({ error: "Sector value is missing." });
+    }
 
     const payload = {
-      contents: [{ parts: [{ text: `Generate a structured, strategic UAE business setup proposal for the industry/sector: "${sector}".` }] }],
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }
+      contents: [
+        {
+          parts: [
+            {
+              text: `Generate a structured, strategic UAE business setup proposal for the following industry/sector: "${sector}". Detail whether it fits best in Mainland or Free Zone, required authority approvals, and estimated investment setup. Reply in the language of the prompt.`
+            }
+          ]
+        }
+      ],
+      systemInstruction: {
+        parts: [{ text: SYSTEM_PROMPT }]
+      }
     };
 
     const response = await fetch(GEMINI_URL, {
@@ -294,6 +324,7 @@ app.post("/plan", async (req, res) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
+
     const data = await response.json();
     return res.json(data);
   } catch (err) {
@@ -303,46 +334,59 @@ app.post("/plan", async (req, res) => {
 });
 
 // -----------------------------
-//  CHATBOT ENDPOINT (/chat - STREAMING)
+//  CHATBOT ENDPOINT (/chat)
 // -----------------------------
 app.post("/chat", async (req, res) => {
   try {
     const { text, lang = "tr" } = req.body;
-    if (!text) return res.status(400).json({ error: "Message text is missing." });
 
-    // Kısa mesaj haritası kontrolü
+    if (!text) {
+      return res.status(400).json({ error: "Message text is missing." });
+    }
+
+    // Token tasarrufu: Gelen mesaj haritada varsa API'ye gitmeden doğrudan yanıt dön
     const cleanText = text.trim().toLowerCase();
     if (corporateShortReplyMap[cleanText]) {
       const selectedLang = ["tr", "en", "ar"].includes(lang) ? lang : "tr";
       const replyText = corporateShortReplyMap[cleanText][selectedLang];
       
-      res.setHeader("Content-Type", "text/event-stream");
-      res.setHeader("Cache-Control", "no-cache");
-      res.setHeader("Connection", "keep-alive");
-      res.write(`data: ${JSON.stringify({ candidates: [{ content: { parts: [{ text: replyText }] } }] })}\n\n`);
-      return res.end();
+      return res.json({
+        candidates: [
+          {
+            content: {
+              parts: [
+                { text: replyText }
+              ]
+            }
+          }
+        ]
+      });
     }
 
     const payload = {
-      contents: [{ parts: [{ text: `User message: "${text}"\nNote: Reply directly without introductory greetings. Automatically detect the user's language and respond in THAT SAME language.` }] }],
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }
+      contents: [
+        {
+          parts: [
+            {
+              text: `User message: "${text}"
+Note: Reply directly without introductory greetings. Automatically detect the user's language and respond in THAT SAME language.`
+            }
+          ]
+        }
+      ],
+      systemInstruction: {
+        parts: [{ text: SYSTEM_PROMPT }]
+      }
     };
 
-    const response = await fetch(STREAM_GEMINI_URL, {
+    const response = await fetch(GEMINI_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
 
-    if (!response.ok) {
-      return res.status(500).json({ error: "Gemini API error." });
-    }
-
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-
-    response.body.pipe(res);
+    const data = await response.json();
+    return res.json(data);
   } catch (err) {
     console.error("Chat endpoint error:", err);
     return res.status(500).json({ error: "Could not generate chat response." });
