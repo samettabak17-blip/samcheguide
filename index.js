@@ -294,6 +294,90 @@ CONTACT INFORMATION POLICY & FORM REDIRECTION:
 `;
 
 // -----------------------------
+//  FRONTEND ARAYÜZ (HTML / JS - Markdown Parser & Mavi Link Destekli)
+// -----------------------------
+app.get("/", (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="tr">
+    <head>
+        <meta charset="UTF-8">
+        <title>SamChe Company - BAE Şirket Kurulum Danışmanı</title>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <style>
+            body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+            .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+            h2 { color: #1a365d; text-align: center; }
+            #chat-box { height: 450px; border: 1px solid #ddd; border-radius: 6px; overflow-y: scroll; padding: 15px; background: #fafafa; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+            .message { padding: 10px 14px; border-radius: 6px; max-width: 85%; line-height: 1.5; word-break: break-word; }
+            .user { background: #007bff; color: white; align-self: flex-end; }
+            .ai { background: #e2e8f0; color: #1a365d; align-self: flex-start; }
+            /* Linklerin kesinlikle mavi ve tıklanabilir olması için stil kuralı */
+            .ai a { color: #007bff !important; font-weight: bold; text-decoration: underline; }
+            .input-group { display: flex; gap: 10px; }
+            textarea { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px; resize: none; height: 50px; font-family: Arial; }
+            button { background: #1a365d; color: white; border: none; padding: 0 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+            button:hover { background: #2a4365; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>SamChe Company - Dubai & BAE Kurulum Uzmanı</h2>
+            <div id="chat-box"></div>
+            <div class="input-group">
+                <textarea id="user-input" placeholder="Mesajınızı yazın..."></textarea>
+                <button onclick="sendMessage()">Gönder</button>
+            </div>
+        </div>
+
+        <script>
+            const chatBox = document.getElementById('chat-box');
+            const userInput = document.getElementById('user-input');
+
+            async function sendMessage() {
+                const text = userInput.value.trim();
+                if (!text) return;
+
+                // Kullanıcı mesajı
+                const userDiv = document.createElement('div');
+                userDiv.className = 'message user';
+                userDiv.innerText = text;
+                chatBox.appendChild(userDiv);
+                userInput.value = '';
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                // AI mesaj balonu
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'message ai';
+                chatBox.appendChild(aiDiv);
+
+                try {
+                    const response = await fetch('/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text })
+                    });
+                    const data = await response.json();
+
+                    if (data.candidates && data.candidates[0].content.parts[0].text) {
+                        const rawText = data.candidates[0].content.parts[0].text;
+                        // Markdown içeriğini HTML'e çevirerek linklerin mavi ve tıklanabilir olmasını sağlıyoruz
+                        aiDiv.innerHTML = marked.parse(rawText);
+                    } else {
+                        aiDiv.innerText = "Yanıt alınamadı.";
+                    }
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                } catch (err) {
+                    aiDiv.innerText = "Bağlantı hatası oluştu.";
+                }
+            }
+        </script>
+    </body>
+    </html>
+  `);
+});
+
+// -----------------------------
 //  STRATEGY PLAN ENDPOINT (/plan)
 // -----------------------------
 app.post("/plan", async (req, res) => {
