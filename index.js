@@ -74,11 +74,11 @@ CONTACT INFORMATION POLICY:
 - Provide contact details ONLY when explicitly requested by the user or when formal proposal submission is required.
 - Official Contact Details (NEVER hallucinate or alter):
   Company: SamChe Company LLC
-  Address: Dubai Silicon Oasis / Dubai, UAE
-  Phone: +971 50 179 3880
+  Address: Sheikh Zayed Road, Latifa Tower Office No 402/ Dubai, UAE
+  Phone: +971 52 662 2875
   WhatsApp: +971 52 728 8586
-  Email: info@samchecompany.com
-  Website: https://samchecompany.com (Guide: https://guide.samchecompany.com)
+  Email: business@samchecompany.com
+  Website: https://samchecompany.com 
 `;
 
 // -----------------------------
