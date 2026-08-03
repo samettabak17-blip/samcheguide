@@ -14,11 +14,11 @@ app.use(express.json());
 // -----------------------------
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" +
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=" +
   GEMINI_API_KEY;
 
 // -----------------------------
-//  SYSTEM INSTRUCTION & KNOWLEDGE BASE (GÜNCELLENMİŞ PROMPT)
+//  SYSTEM INSTRUCTION & KNOWLEDGE BASE
 // -----------------------------
 const SYSTEM_PROMPT = `
 You are the Senior Executive AI Advisor at SamChe Company LLC, a premier corporate services and business setup consultancy in Dubai, UAE. You represent SamChe Company LLC exclusively. You never mention, recommend, or refer to any other agency, consultancy, or third-party company.
@@ -81,8 +81,8 @@ UAE BUSINESS SETUP KNOWLEDGE BASE & JURISDICTION RULES:
        - SPECIAL NOTE FOR RAKEZ & AJMAN: Offers "Life Time Visa" options with annual package/license renewal requirements. Crypto/Web3 and Gold Trading are restricted in these regions.
 
 CONTACT INFORMATION POLICY:
-- Provide contact details ONLY when explicitly requested. Never hallucinate details.
-- Official Contact Details:
+- Provide contact details ONLY when explicitly requested by the user or when formal proposal submission is required.
+- Official Contact Details (NEVER hallucinate or alter):
   Company: SamChe Company LLC
   Address: Sheikh Zayed Road, Latifa Tower Office No 402/ Dubai, UAE
   Phone: +971 52 662 2875
@@ -97,11 +97,24 @@ CONTACT INFORMATION POLICY:
 app.post("/plan", async (req, res) => {
   try {
     const { sector } = req.body;
-    if (!sector) return res.status(400).json({ error: "Sector value is missing." });
+
+    if (!sector) {
+      return res.status(400).json({ error: "Sector value is missing." });
+    }
 
     const payload = {
-      contents: [{ parts: [{ text: `Generate a structured, strategic UAE business setup preliminary budget proposal for the sector: "${sector}". Detail Mainland vs Free Zone fit, approvals, and estimated cost.` }] }],
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }
+      contents: [
+        {
+          parts: [
+            {
+              text: `Generate a structured, strategic UAE business setup preliminary budget proposal for the following industry/sector: "${sector}". Detail whether it fits best in Mainland or Free Zone, required authority approvals, and estimated investment setup. Reply in the language of the prompt.`
+            }
+          ]
+        }
+      ],
+      systemInstruction: {
+        parts: [{ text: SYSTEM_PROMPT }]
+      }
     };
 
     const response = await fetch(GEMINI_URL, {
@@ -109,6 +122,7 @@ app.post("/plan", async (req, res) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
+
     const data = await response.json();
     return res.json(data);
   } catch (err) {
@@ -123,11 +137,25 @@ app.post("/plan", async (req, res) => {
 app.post("/chat", async (req, res) => {
   try {
     const { text } = req.body;
-    if (!text) return res.status(400).json({ error: "Message text is missing." });
+
+    if (!text) {
+      return res.status(400).json({ error: "Message text is missing." });
+    }
 
     const payload = {
-      contents: [{ parts: [{ text: `User message: "${text}"` }] }],
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }
+      contents: [
+        {
+          parts: [
+            {
+              text: `User message: "${text}"
+Note: Reply directly without introductory greetings. Automatically detect the user's language and respond in THAT SAME language. If the user hasn't specified their industry or visa count, ask them first.`
+            }
+          ]
+        }
+      ],
+      systemInstruction: {
+        parts: [{ text: SYSTEM_PROMPT }]
+      }
     };
 
     const response = await fetch(GEMINI_URL, {
@@ -135,6 +163,7 @@ app.post("/chat", async (req, res) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
+
     const data = await response.json();
     return res.json(data);
   } catch (err) {
@@ -148,5 +177,5 @@ app.post("/chat", async (req, res) => {
 // -----------------------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log("SamChe Company Dubai Advisor Server running on PORT " + PORT);
+  console.log("SamChe Company Backend running on PORT " + PORT);
 });
