@@ -17,6 +17,155 @@ const GEMINI_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=" +
   GEMINI_API_KEY;
 
+// -------------------------------
+//  KISA MESAJ → KURUMSAL CEVAP HARİTASI (TOKEN TASARRUFU İÇİN)
+// -------------------------------
+const corporateShortReplyMap = {
+  // 1 - 2 - 3 (Özel davranış)
+  "1": {
+    tr: "Size nasıl yardımcı olabilirim?",
+    en: "How may I assist you?",
+    ar: "كيف يمكنني مساعدتك؟"
+  },
+  "2": {
+    tr: "Size nasıl yardımcı olabilirim?",
+    en: "How may I assist you?",
+    ar: "كيف يمكنني مساعدتك؟"
+  },
+  "3": {
+    tr: "Size nasıl yardımcı olabilirim?",
+    en: "How may I assist you?",
+    ar: "كيف يمكنني مساعدتك؟"
+  },
+
+  // Selamlama
+  merhaba: {
+    tr: "Merhaba, size nasıl yardımcı olabilirim?",
+    en: "Hello, how may I assist you today?",
+    ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟"
+  },
+  selam: {
+    tr: "Merhaba, size nasıl yardımcı olabilirim?",
+    en: "Hello, how may I assist you today?",
+    ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟"
+  },
+  hi: {
+    tr: "Merhaba, size nasıl yardımcı olabilirim?",
+    en: "Hello, how may I assist you today?",
+    ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟"
+  },
+  hello: {
+    tr: "Hello, how may I assist you today?",
+    en: "Hello, how may I assist you today?",
+    ar: "مرحبًا، كيف يمكنني مساعدتك اليوم؟"
+  },
+
+  // Teşekkür & Kapanış
+  teşekkürler: {
+    tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.",
+    en: "My pleasure. I’m here whenever you need support.",
+    ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة."
+  },
+  tesekkurler: {
+    tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.",
+    en: "My pleasure. I’m here whenever you need support.",
+    ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة."
+  },
+  "thank you": {
+    tr: "My pleasure. I’m here whenever you need support.",
+    en: "My pleasure. I’m here whenever you need support.",
+    ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة."
+  },
+  thanks: {
+    tr: "My pleasure. I’m here whenever you need support.",
+    en: "My pleasure. I’m here whenever you need support.",
+    ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة."
+  },
+  "ben teşekkür ederim": {
+    tr: "Rica ederim. Her zaman yardımcı olmaktan memnuniyet duyarım.",
+    en: "You're welcome. Always happy to assist.",
+    ar: "على الرحب والسعة. يسعدني دائمًا مساعدتك."
+  },
+  "çok teşekkürler": {
+    tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.",
+    en: "My pleasure. I’m here whenever you need support.",
+    ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة."
+  },
+  "teşekkür ederim": {
+    tr: "Ben teşekkür ederim. Dilediğiniz zaman yardımcı olmaktan memnuniyet duyarım.",
+    en: "My pleasure. I’m here whenever you need support.",
+    ar: "على الرحب والسعة. أنا هنا كلما احتجت إلى المساعدة."
+  },
+
+  // Sağol / Eyvallah
+  sağol: {
+    tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.",
+    en: "You're welcome. I’m here if you need anything.",
+    ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء."
+  },
+  sagol: {
+    tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.",
+    en: "You're welcome. I’m here if you need anything.",
+    ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء."
+  },
+  eyvallah: {
+    tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.",
+    en: "You're welcome. I’m here if you need anything.",
+    ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء."
+  },
+
+  // Anlama / Onay
+  anladım: {
+    tr: "Harika. Nasıl devam etmek istersiniz?",
+    en: "Great. How would you like to proceed?",
+    ar: "جميل. كيف تود المتابعة؟"
+  },
+  anladim: {
+    tr: "Harika. Nasıl devam etmek istersiniz?",
+    en: "Great. How would you like to proceed?",
+    ar: "جميل. كيف تود المتابعة؟"
+  },
+  "got it": {
+    tr: "Understood. How would you like to proceed?",
+    en: "Understood. How would you like to proceed?",
+    ar: "فهمت. كيف تود المتابعة؟"
+  },
+  understood: {
+    tr: "Understood. How would you like to proceed?",
+    en: "Understood. How would you like to proceed?",
+    ar: "فهمت. كيف تود المتابعة؟"
+  },
+  noted: {
+    tr: "Not aldım. Nasıl devam etmek istersiniz?",
+    en: "Noted. How would you like to proceed?",
+    ar: "تم تدوينه. كيف تود المتابعة؟"
+  },
+
+  // Kapanış
+  "görüşmek üzere": {
+    tr: "Görüşmek üzere. Dilediğiniz zaman buradayım.",
+    en: "See you soon. I’m here whenever you need assistance.",
+    ar: "أراك قريبًا. أنا هنا كلما احتجت إلى المساعدة."
+  },
+  "gorusmek uzere": {
+    tr: "Görüşmek üzere. Dilediğiniz zaman buradayım.",
+    en: "See you soon. I’m here whenever you need assistance.",
+    ar: "أراك قريبًا. أنا هنا كلما احتجت إلى المساعدة."
+  },
+
+  // Emoji
+  "👍": {
+    tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.",
+    en: "You're welcome. I’m here if you need anything.",
+    ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء."
+  },
+  "🙏": {
+    tr: "Rica ederim. Dilediğiniz zaman yardımcı olabilirim.",
+    en: "You're welcome. I’m here if you need anything.",
+    ar: "على الرحب والسعة. أنا هنا إذا احتجت أي شيء."
+  }
+};
+
 // -----------------------------
 //  SYSTEM INSTRUCTION & KNOWLEDGE BASE
 // -----------------------------
@@ -77,7 +226,6 @@ UAE BUSINESS SETUP KNOWLEDGE BASE & JURISDICTION RULES:
        - SPECIAL GOLD TRADING LICENSE: Gold & Precious Metals Trading package costs 40,000 AED total (inclusive of 1 visa & setup).
      * Dubai South: Specialized in Aviation, Logistics, Software, Cloud & E-Commerce support.
      * Sharjah (SPCFZ / IFZA): Highly flexible for E-Commerce Portals, Web Design, Media, Publishing, and Academies.
-     * RAKEZ (Ras Al Khaimah) & Ajman Free Zone: Cost-effective for digital/online businesses, IT coding, and social media.
        - SPECIAL NOTE FOR RAKEZ & AJMAN: Offers "Life Time Visa" options with annual package/license renewal requirements. Crypto/Web3 and Gold Trading are restricted in these regions.
 
 CONTACT INFORMATION POLICY:
@@ -136,10 +284,30 @@ app.post("/plan", async (req, res) => {
 // -----------------------------
 app.post("/chat", async (req, res) => {
   try {
-    const { text } = req.body;
+    const { text, lang = "tr" } = req.body;
 
     if (!text) {
       return res.status(400).json({ error: "Message text is missing." });
+    }
+
+    // Token tasarrufu: Gelen mesaj haritada varsa API'ye gitmeden doğrudan yanıt dön
+    const cleanText = text.trim().toLowerCase();
+    if (corporateShortReplyMap[cleanText]) {
+      const selectedLang = ["tr", "en", "ar"].includes(lang) ? lang : "tr";
+      const replyText = corporateShortReplyMap[cleanText][selectedLang];
+      
+      // Gemini API yanıt formatına birebir uyumlu yapı döndürüyoruz
+      return res.json({
+        candidates: [
+          {
+            content: {
+              parts: [
+                { text: replyText }
+              ]
+            }
+          }
+        ]
+      });
     }
 
     const payload = {
